@@ -61,6 +61,7 @@ To host your own instance of the proxy:
     - Add your GitHub account to Pages.
     - Grant access to your fork of `twilligon/git-lfs-s3-proxy`.
     - Set up your Pages site: set **Build command** to `npm install` and leave all other settings on their defaults.
+  - The checked-in `wrangler.toml` intentionally does not set `limits.cpu_ms`, because Cloudflare only supports custom CPU limits on paid Workers plans. If you later add `[limits] cpu_ms = ...`, deployments from a Free plan account will fail.
 - If you own a domain name (e.g. `example.com`), you can [add a CNAME record](https://developers.cloudflare.com/pages/platform/custom-domains/#add-a-custom-cname-record) to point a subdomain (e.g. `git-lfs-s3-proxy.example.com`) at your instance. If you don't own a domain, a `pages.dev` subdomain will work just as well, except you'll have to change your LFS server URL if you ever stop using the proxy.
 
 ### Find your LFS server URL
@@ -181,4 +182,3 @@ Hopefully `aws4fetch` merges the [fix](https://github.com/mhart/aws4fetch/pull/7
 For example, with a Linode bucket `my-repo` in `us-east-1` region with access key ID `foo` and secret access key `bar` via the default instance:
 
     https://foo:bar@git-lfs-s3-proxy.pages.dev/service=s3/us-east-1.linodeobjects.com/my-repo
-
