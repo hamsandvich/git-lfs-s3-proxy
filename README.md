@@ -62,6 +62,7 @@ To host your own instance of the proxy:
     - Grant access to your fork of `twilligon/git-lfs-s3-proxy`.
     - Set up your Pages site: set **Build command** to `npm install` and leave all other settings on their defaults.
   - The checked-in `wrangler.toml` intentionally does not set `limits.cpu_ms`, because Cloudflare only supports custom CPU limits on paid Workers plans. If you later add `[limits] cpu_ms = ...`, deployments from a Free plan account will fail.
+  - For slow or very large LFS pushes, you can set a Worker environment variable named `EXPIRY` to increase the presigned URL lifetime in seconds. For example, `86400` keeps each upload URL valid for 24 hours instead of the default 3600 seconds.
 - If you own a domain name (e.g. `example.com`), you can [add a CNAME record](https://developers.cloudflare.com/pages/platform/custom-domains/#add-a-custom-cname-record) to point a subdomain (e.g. `git-lfs-s3-proxy.example.com`) at your instance. If you don't own a domain, a `pages.dev` subdomain will work just as well, except you'll have to change your LFS server URL if you ever stop using the proxy.
 
 ### Find your LFS server URL

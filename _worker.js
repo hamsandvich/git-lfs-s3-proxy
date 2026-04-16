@@ -10,10 +10,20 @@ const METHOD_FOR = {
   download: "GET",
 };
 
-async function sign(s3, bucket, path, method) {
+function parseExpiry(value) {
+  const expiry = Number.parseInt(value, 10);
+  if (!Number.isFinite(expiry) || expiry < 1) {
+    return EXPIRY;
+  }
+
+  // R2 presigned URLs support expiries up to 7 days.
+  return Math.min(expiry, 604800);
+}
+
+async function sign(s3, bucket, path, method, expiry) {
   const info = { method };
   const signed = await s3.sign(
-    new Request(`https://${bucket}/${path}?X-Amz-Expires=${EXPIRY}`, info),
+    new Request(`https://${bucket}/${path}?X-Amz-Expires=${expiry}`, info),
     { aws: { signQuery: true } },
   );
   return signed.url;
@@ -69,7 +79,6 @@ async function fetch(req, env) {
   let s3Options = { accessKeyId: user, secretAccessKey: pass };
 
   const segments = url.pathname.split("/").slice(1, -2);
-  let params = {};
   let bucketIdx = 0;
   for (const segment of segments) {
     const sliceIdx = segment.indexOf("=");
@@ -86,7 +95,7 @@ async function fetch(req, env) {
 
   const s3 = new AwsClient(s3Options);
   const bucket = segments.slice(bucketIdx).join("/");
-  const expires_in = params.expiry || env.EXPIRY || EXPIRY;
+  const expires_in = parseExpiry(env.EXPIRY);
 
   const { objects, operation, hash_algo = "sha256" } = await req.json();
 
@@ -113,7 +122,7 @@ async function fetch(req, env) {
         authenticated: true,
         actions: {
           [operation]: {
-            href: await sign(s3, bucket, oid, method),
+            href: await sign(s3, bucket, oid, method, expires_in),
             expires_in,
           },
         },
