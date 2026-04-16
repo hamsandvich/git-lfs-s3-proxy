@@ -1,3 +1,6 @@
 name = "git-lfs-s3-proxy"
 main = "./_worker.js"
 compatibility_date = "2026-03-02"
+
+[limits]
+cpu_ms = 300_000
